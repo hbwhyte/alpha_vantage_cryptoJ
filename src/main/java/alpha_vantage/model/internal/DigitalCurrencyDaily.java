@@ -2,7 +2,8 @@ package alpha_vantage.model.internal;
 
 import alpha_vantage.enums.DigitalCurrency;
 
-public class Past30Days {
+public class DigitalCurrencyDaily {
+    int id;
     String date;
     String symbol;
     double open;
@@ -11,6 +12,14 @@ public class Past30Days {
     double close;
     double volume;
     double marketCap;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public String getSymbol() {
         return symbol;
