@@ -1,2 +1,6 @@
 .idea/
 gs-rest-service.iml
+alphavantage.iml
+.DS_Store
+target/
+*.iml
