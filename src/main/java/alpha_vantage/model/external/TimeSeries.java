@@ -1,13 +1,9 @@
 package alpha_vantage.model.external;
 
-import alpha_vantage.enums.DigitalCurrency;
-import alpha_vantage.model.external.DigitalCurrencyData;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import java.util.ArrayList;
-import java.util.Map;
 import java.util.TreeMap;
 
 public class TimeSeries {
@@ -22,8 +18,11 @@ public class TimeSeries {
     }
 
     @JsonAnyGetter
-    public TreeMap<String, DigitalCurrencyData> getData() {
+    public TreeMap<String, DigitalCurrencyData> getDays() {
         return days;
     }
-
+//
+//    public String date(TreeMap<String, DigitalCurrencyData> map) {
+//        return map.descendingKeySet();
+//    }
 }

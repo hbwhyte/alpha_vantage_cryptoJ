@@ -28,19 +28,7 @@ public class DigitalCurrencyData {
     public DigitalCurrencyData() {
     }
 
-//    public DigitalCurrencyData(double openLocal, double openUSD, double highLocal, double highUSD, double lowLocal,
-//                               double lowUSD, double closeLocal, double closeUSD, double volume, double marketCap) {
-//        this.openLocal = openLocal;
-//        this.openUSD = openUSD;
-//        this.highLocal = highLocal;
-//        this.highUSD = highUSD;
-//        this.lowLocal = lowLocal;
-//        this.lowUSD = lowUSD;
-//        this.closeLocal = closeLocal;
-//        this.closeUSD = closeUSD;
-//        this.volume = volume;
-//        this.marketCap = marketCap;
-//    }
+
 
 //    public double getOpenLocal() {
 //        return openLocal;
@@ -97,10 +85,10 @@ public class DigitalCurrencyData {
 //    public void setCloseLocal(double closeLocal) {
 //        this.closeLocal = closeLocal;
 //    }
-//
-//    public double getCloseUSD() {
-//        return closeUSD;
-//    }
+
+    public double getCloseUSD() {
+        return closeUSD;
+    }
 
     public void setCloseUSD(double closeUSD) {
         this.closeUSD = closeUSD;

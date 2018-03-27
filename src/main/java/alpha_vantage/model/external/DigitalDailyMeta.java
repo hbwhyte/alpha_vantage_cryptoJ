@@ -1,5 +1,6 @@
 package alpha_vantage.model.external;
 
+import alpha_vantage.enums.DigitalCurrency;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class DigitalDailyMeta {
@@ -7,7 +8,7 @@ public class DigitalDailyMeta {
     @JsonProperty("1. Information")
     String information;
     @JsonProperty("2. Digital Currency Code")
-    String digitalCurrencyCode;
+    DigitalCurrency digitalCurrencyCode;
     @JsonProperty("3. Digital Currency Name")
     String digitalCurrencyName;
     @JsonProperty("4. Market Code")
@@ -27,11 +28,11 @@ public class DigitalDailyMeta {
         this.information = information;
     }
 
-    public String getDigitalCurrencyCode() {
+    public DigitalCurrency getDigitalCurrencyCode() {
         return digitalCurrencyCode;
     }
 
-    public void setDigitalCurrencyCode(String digitalCurrencyCode) {
+    public void setDigitalCurrencyCode(DigitalCurrency digitalCurrencyCode) {
         this.digitalCurrencyCode = digitalCurrencyCode;
     }
 

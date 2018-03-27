@@ -2,8 +2,11 @@ package alpha_vantage.services;
 
 import alpha_vantage.enums.DigitalCurrency;
 import alpha_vantage.enums.PhysicalCurrency;
+import alpha_vantage.mappers.DigitalDailyMapper;
+import alpha_vantage.model.external.DigitalCurrencyData;
 import alpha_vantage.model.internal.FindMax;
 import alpha_vantage.model.external.DigitalDailyResponse;
+import alpha_vantage.model.internal.Past30Days;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -17,15 +20,34 @@ public class DigitalDailyService {
     @Autowired
     RestTemplate restTemplate;
 
-    public DigitalDailyResponse searchDigitalDaily(DigitalCurrency symbol, PhysicalCurrency market) {
-        String fQuery = "https://www.alphavantage.co/query?function=DIGITAL_CURRENCY_DAILY&symbol=" + symbol + "&market=" + market + "&apikey=[APIKEY]";
+    @Autowired
+    DigitalDailyMapper digitalDailyMapper;
+
+    public DigitalDailyResponse searchDigitalDaily(DigitalCurrency symbol) {
+        String fQuery = "https://www.alphavantage.co/query?function=DIGITAL_CURRENCY_DAILY&symbol=" + symbol + "&market=USD&apikey=[APIKEY]";
         DigitalDailyResponse response = restTemplate.getForObject(fQuery, DigitalDailyResponse.class);
+
+        for (LocalDate date = LocalDate.now().minusDays(30); date.isBefore(LocalDate.now().minusDays(1));
+             date = date.plusDays(1)) {
+            Past30Days obj = new Past30Days();
+            String mydate = date.toString();
+            obj.setDate(mydate);
+            obj.setSymbol((response.getMetaData().getDigitalCurrencyCode().name()));
+            obj.setOpen(response.getTimeSeries().getDays().get(obj.getDate()).getOpenUSD());
+            obj.setHigh(response.getTimeSeries().getDays().get(obj.getDate()).getHighUSD());
+            obj.setLow(response.getTimeSeries().getDays().get(obj.getDate()).getLowUSD());
+            obj.setClose(response.getTimeSeries().getDays().get(obj.getDate()).getCloseUSD());
+            obj.setVolume(response.getTimeSeries().getDays().get(obj.getDate()).getVolume());
+            obj.setMarketCap(response.getTimeSeries().getDays().get(obj.getDate()).getMarketCap());
+
+            digitalDailyMapper.insertDay(obj);
+        }
         return response;
     }
 
     // Finds max value of a digital currency over the past specified number of days
     public FindMax findMax(DigitalCurrency symbol, int numDays) {
-        DigitalDailyResponse response = searchDigitalDaily(symbol, USD);
+        DigitalDailyResponse response = searchDigitalDaily(symbol);
 
         FindMax obj = new FindMax();
         double maxVal = -1;
@@ -36,7 +58,7 @@ public class DigitalDailyService {
              date = date.plusDays(1)) {
             String mydate = date.toString();
             obj.setDate(mydate);
-            obj.setHighUSD(response.getTimeSeries().getData().get(obj.getDate()).getHighUSD());
+            obj.setHighUSD(response.getTimeSeries().getDays().get(obj.getDate()).getHighUSD());
             if (obj.getHighUSD() > maxVal) {
                 maxVal = obj.getHighUSD();
                 maxDate = obj.getDate();
@@ -47,6 +69,7 @@ public class DigitalDailyService {
         return obj;
 
     }
+
 }
 
 //    public DigitalDailyResponse (final Map<String, String> metaData,

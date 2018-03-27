@@ -4,13 +4,21 @@ import alpha_vantage.enums.DigitalCurrency;
 
 public class Past30Days {
     String date;
-    DigitalCurrency symbol;
+    String symbol;
     double open;
     double high;
     double low;
     double close;
     double volume;
     double marketCap;
+
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
+    }
 
     public String getDate() {
         return date;

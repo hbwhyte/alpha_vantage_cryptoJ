@@ -17,9 +17,8 @@ public class DigitalDailyController {
     DigitalDailyService digitalDailyService;
 
     @RequestMapping("/search")
-    public DigitalDailyResponse searchDigitalDaily(@RequestParam(value = "symbol", defaultValue = "BTC") DigitalCurrency symbol,
-                                                   @RequestParam(value = "market", defaultValue = "USD") PhysicalCurrency market) {
-        return digitalDailyService.searchDigitalDaily(symbol, market);
+    public DigitalDailyResponse searchDigitalDaily(@RequestParam(value = "symbol", defaultValue = "BTC") DigitalCurrency symbol) {
+        return digitalDailyService.searchDigitalDaily(symbol);
     }
 
     @RequestMapping("/max")
@@ -27,4 +26,6 @@ public class DigitalDailyController {
                            @RequestParam(value = "days", defaultValue = "30") int numDays) {
         return digitalDailyService.findMax(symbol, numDays);
     }
+
+
 }
