@@ -13,9 +13,12 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/digitaldaily")
 public class DigitalDailyController {
+
     @Autowired
     DigitalDailyService digitalDailyService;
 
+    // CADEN: could use more description above each controller with purpose, path variables, query parameters
+    //          request body etc.
     @RequestMapping("/search")
     public DigitalDailyResponse searchDigitalDaily(@RequestParam(value = "symbol", defaultValue = "BTC") DigitalCurrency symbol) {
         return digitalDailyService.searchDigitalDaily(symbol);
@@ -27,6 +30,7 @@ public class DigitalDailyController {
         return digitalDailyService.findMax(symbol, numDays);
     }
 
+    //CADEN: url design looks good and uniform across methods
     //Create
     @RequestMapping(method= RequestMethod.POST, value="/")
     public DigitalCurrencyDaily addNew(@RequestBody DigitalCurrencyDaily entry) {

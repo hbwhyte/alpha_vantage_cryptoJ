@@ -20,6 +20,8 @@ public class DigitalDailyService {
     @Autowired
     DigitalDailyMapper digitalDailyMapper;
 
+    // CADEN: to me this method could be broken up a bit. Maybe have a method that maps the root object and returns it
+            //and thats it. then other methods for saving the past 30 days to the DB
     public DigitalDailyResponse searchDigitalDaily(DigitalCurrency symbol) {
         String fQuery = "https://www.alphavantage.co/query?function=DIGITAL_CURRENCY_DAILY&symbol=" + symbol + "&market=USD&apikey=APIKEY";
         DigitalDailyResponse response = restTemplate.getForObject(fQuery, DigitalDailyResponse.class);
@@ -68,6 +70,7 @@ public class DigitalDailyService {
 
     }
 
+    //CADEN: these look good
     public DigitalCurrencyDaily addNew(DigitalCurrencyDaily entry) {
         digitalDailyMapper.insertDay(entry);
         return digitalDailyMapper.getByID(entry.getId());
@@ -78,6 +81,9 @@ public class DigitalDailyService {
         return digitalDailyMapper.getByID(entry.getId());
     }
 
+    //CADEN: currently this method returns an empty object or nothing at all if the delete was successful.
+    //      if the mapper is modified to not delete but make it inactive, this method will then give the
+    //      user the object back so they can see what was deleted
     public DigitalCurrencyDaily deleteByID(int id) {
         digitalDailyMapper.deleteEntry(id);
         return  digitalDailyMapper.getByID(id);

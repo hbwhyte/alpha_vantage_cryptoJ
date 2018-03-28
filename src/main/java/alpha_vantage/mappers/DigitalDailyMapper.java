@@ -14,6 +14,7 @@ public interface DigitalDailyMapper {
             "(`date`, `symbol`, `open`, `high`, `low`, `close`, `volume`,`marketcap`) " +
             "VALUES (#{date}, #{symbol}, #{open}, #{high}, #{low}, #{close}, #{volume}, #{marketCap})");
 
+    //could modify delete statement to change a field "isActive" to 0 instead of deleting the field completely
     String DELETE_ENTRY = ("DELETE FROM `mybatis-test`.`digital_currency_daily` WHERE `id`= #{id}");
 
     String UPDATE_ENTRY = ("UPDATE `mybatis-test`.`digital_currency_daily` SET `date`=#{date}, `symbol`=#{symbol}, " +
