@@ -21,7 +21,10 @@ public class DigitalDailyService {
     DigitalDailyMapper digitalDailyMapper;
 
     // CADEN: to me this method could be broken up a bit. Maybe have a method that maps the root object and returns it
-            //and thats it. then other methods for saving the past 30 days to the DB
+            //and thats it. then another method that maps this new DigitalCurrencyDaily object from the root
+
+    //CADEN: this method is also adding everything to the database every time to in method that inserts the data,
+    //          you could add a check that querys the database to check if it exists before adding it
     public DigitalDailyResponse searchDigitalDaily(DigitalCurrency symbol) {
         String fQuery = "https://www.alphavantage.co/query?function=DIGITAL_CURRENCY_DAILY&symbol=" + symbol + "&market=USD&apikey=APIKEY";
         DigitalDailyResponse response = restTemplate.getForObject(fQuery, DigitalDailyResponse.class);
