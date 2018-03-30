@@ -86,5 +86,9 @@ public class DigitalDailyService {
     public DigitalCurrencyDaily getByID(int id) {
         return  digitalDailyMapper.getByID(id);
     }
+
+//    public DigitalCurrencyDaily persist(DigitalCurrency symbol) {
+//
+//    }
 }
 
