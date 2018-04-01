@@ -78,6 +78,12 @@ public class DigitalDailyService {
         return digitalDailyMapper.getByID(entry.getId());
     }
 
+    /**
+     * Marks entry at that id as inactive (isActive = 0). Does not permanently remove item from database.
+     *
+     * @param id of entry to be set to inactive
+     * @return record of inactive entry
+     */
     public DigitalCurrencyDaily deleteByID(int id) {
         digitalDailyMapper.deleteEntry(id);
         return  digitalDailyMapper.getByID(id);

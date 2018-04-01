@@ -17,7 +17,7 @@ public class DigitalDailyController {
     DigitalDailyService digitalDailyService;
 
     @RequestMapping("/search")
-    public DigitalDailyResponse searchDigitalDaily(@RequestParam(value = "symbol", defaultValue = "BTC") DigitalCurrency symbol) {
+    public DigitalDailyResponse searchDigitalDaily(@RequestParam(value = "symbol", defaultValue = "ETH") DigitalCurrency symbol) {
         return digitalDailyService.searchDigitalDaily(symbol);
     }
 

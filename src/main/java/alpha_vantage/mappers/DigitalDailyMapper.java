@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.*;
 @Mapper
 public interface DigitalDailyMapper {
 
-    String GET_BY_DATE = ("SELECT * FROM `mybatis-test`.`digital_currency_daily` WHERE date = #{date}");
+    String GET_BY_DATE = ("SELECT * FROM `mybatis-test`.`digital_currency_daily` WHERE date = #{date} AND isActive=1");
 
     String GET_BY_ID = ("SELECT * FROM `mybatis-test`.`digital_currency_daily` WHERE id = #{id}");
 
@@ -14,10 +14,11 @@ public interface DigitalDailyMapper {
             "(`date`, `symbol`, `open`, `high`, `low`, `close`, `volume`,`marketcap`) " +
             "VALUES (#{date}, #{symbol}, #{open}, #{high}, #{low}, #{close}, #{volume}, #{marketCap})");
 
-    String DELETE_ENTRY = ("DELETE FROM `mybatis-test`.`digital_currency_daily` WHERE `id`= #{id}");
+    String DELETE_ENTRY = ("UPDATE `mybatis-test`.`digital_currency_daily` SET `isActive`=0 WHERE `id`= #{id}");
 
     String UPDATE_ENTRY = ("UPDATE `mybatis-test`.`digital_currency_daily` SET `date`=#{date}, `symbol`=#{symbol}, " +
-            "`open`=#{open}, `high`=#{high}, `low`=#{low}, `close`=#{close}, `volume`=#{volume},`marketcap`=#{marketCap} " +
+            "`open`=#{open}, `high`=#{high}, `low`=#{low}, `close`=#{close}, `volume`=#{volume},`marketcap`=#{marketCap}, " +
+            "`isActive`=#{isActive} " +
             "WHERE `id`= #{id}");
 
 

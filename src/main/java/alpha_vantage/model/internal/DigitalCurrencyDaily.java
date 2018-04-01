@@ -1,7 +1,5 @@
 package alpha_vantage.model.internal;
 
-import alpha_vantage.enums.DigitalCurrency;
-
 public class DigitalCurrencyDaily {
     int id;
     String date;
@@ -12,6 +10,7 @@ public class DigitalCurrencyDaily {
     double close;
     double volume;
     double marketCap;
+    boolean isActive;
 
     public int getId() {
         return id;
@@ -21,20 +20,20 @@ public class DigitalCurrencyDaily {
         this.id = id;
     }
 
-    public String getSymbol() {
-        return symbol;
-    }
-
-    public void setSymbol(String symbol) {
-        this.symbol = symbol;
-    }
-
     public String getDate() {
         return date;
     }
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
     }
 
     public double getOpen() {
@@ -83,6 +82,14 @@ public class DigitalCurrencyDaily {
 
     public void setMarketCap(double marketCap) {
         this.marketCap = marketCap;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
     }
 }
 
