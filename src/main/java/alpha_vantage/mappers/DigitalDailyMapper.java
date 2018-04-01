@@ -1,5 +1,7 @@
 package alpha_vantage.mappers;
 
+import alpha_vantage.enums.DigitalCurrency;
+import alpha_vantage.model.external.DigitalDailyResponse;
 import alpha_vantage.model.internal.DigitalCurrencyDaily;
 import org.apache.ibatis.annotations.*;
 
@@ -21,6 +23,8 @@ public interface DigitalDailyMapper {
             "`isActive`=#{isActive} " +
             "WHERE `id`= #{id}");
 
+    String DOUBLE_CHECK = ("SELECT * FROM `mybatis-test`.`digital_currency_daily` " +
+            "WHERE `date`=#{arg0} AND `symbol`=#{arg1}");
 
     @Select(GET_BY_DATE)
     public DigitalCurrencyDaily getByDate(String date);
@@ -36,5 +40,8 @@ public interface DigitalDailyMapper {
 
     @Update(UPDATE_ENTRY)
     void updateEntry(DigitalCurrencyDaily entry);
+
+    @Select(DOUBLE_CHECK)
+    public DigitalCurrencyDaily doubleCheck(String date, String symbol);
 
 }
