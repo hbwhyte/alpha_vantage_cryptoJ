@@ -1,7 +1,5 @@
 package alpha_vantage.mappers;
 
-import alpha_vantage.enums.DigitalCurrency;
-import alpha_vantage.model.external.DigitalDailyResponse;
 import alpha_vantage.model.internal.DigitalCurrencyDaily;
 import org.apache.ibatis.annotations.*;
 

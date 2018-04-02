@@ -481,4 +481,6 @@ public enum DigitalCurrency {
     DigitalCurrency(String fullName) {
         this.fullName = fullName;
     }
+
+    //TODO use enum names in methods
 }
