@@ -2,7 +2,6 @@ package alpha_vantage.services;
 
 import alpha_vantage.enums.DigitalCurrency;
 import alpha_vantage.mappers.DigitalDailyMapper;
-import alpha_vantage.model.external.DigitalCurrencyData;
 import alpha_vantage.model.internal.FindMax;
 import alpha_vantage.model.external.DigitalDailyResponse;
 import alpha_vantage.model.internal.DigitalCurrencyDaily;
@@ -12,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 @Service
 public class DigitalDailyService {
@@ -24,11 +24,32 @@ public class DigitalDailyService {
     @Value("${alphavantage.api-key}")
     private String apiKey;
 
+
     public DigitalDailyResponse searchDigitalDaily(DigitalCurrency symbol) {
         String fQuery = "https://www.alphavantage.co/query?function=DIGITAL_CURRENCY_DAILY&symbol=" + symbol + "&market=USD&apikey=" + apiKey;
         DigitalDailyResponse response = restTemplate.getForObject(fQuery, DigitalDailyResponse.class);
-        persist(response);
         return response;
+    }
+
+    public ArrayList<DigitalCurrencyDaily> searchDigital30(DigitalCurrency symbol) {
+       DigitalDailyResponse response = searchDigitalDaily(symbol);
+        ArrayList<DigitalCurrencyDaily> last30 = new ArrayList<>();
+
+        for (LocalDate date = LocalDate.now().minusDays(30); date.isBefore(LocalDate.now().minusDays(1));
+             date = date.plusDays(1)) {
+            String mydate = date.toString();
+            DigitalCurrencyDaily obj = new DigitalCurrencyDaily();
+            obj.setDate(mydate);
+            obj.setSymbol((response.getMetaData().getDigitalCurrencyCode().name()));
+            obj.setOpen(response.getTimeSeries().getDays().get(obj.getDate()).getOpenUSD());
+            obj.setHigh(response.getTimeSeries().getDays().get(obj.getDate()).getHighUSD());
+            obj.setLow(response.getTimeSeries().getDays().get(obj.getDate()).getLowUSD());
+            obj.setClose(response.getTimeSeries().getDays().get(obj.getDate()).getCloseUSD());
+            obj.setVolume(response.getTimeSeries().getDays().get(obj.getDate()).getVolume());
+            obj.setMarketCap(response.getTimeSeries().getDays().get(obj.getDate()).getMarketCap());
+            last30.add(obj);
+            }
+        return last30;
     }
 
     public String persist(DigitalDailyResponse response) {
@@ -106,6 +127,6 @@ public class DigitalDailyService {
     public DigitalCurrencyDaily getByID(int id) {
         return digitalDailyMapper.getByID(id);
     }
-    
+
 }
 

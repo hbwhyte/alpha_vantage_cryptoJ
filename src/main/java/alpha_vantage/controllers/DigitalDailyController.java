@@ -10,6 +10,8 @@ import alpha_vantage.services.DigitalDailyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+
 @RestController
 @RequestMapping("/digitaldaily")
 public class DigitalDailyController {
@@ -17,8 +19,8 @@ public class DigitalDailyController {
     DigitalDailyService digitalDailyService;
 
     @RequestMapping("/search")
-    public DigitalDailyResponse searchDigitalDaily(@RequestParam(value = "symbol", defaultValue = "ETH") DigitalCurrency symbol) {
-        return digitalDailyService.searchDigitalDaily(symbol);
+    public ArrayList<DigitalCurrencyDaily> searchDigital30(@RequestParam(value = "symbol", defaultValue = "ETH") DigitalCurrency symbol) {
+        return digitalDailyService.searchDigital30(symbol);
     }
 
     @RequestMapping("/max")
