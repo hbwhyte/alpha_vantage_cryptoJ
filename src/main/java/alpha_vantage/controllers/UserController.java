@@ -2,6 +2,7 @@ package alpha_vantage.controllers;
 
 import alpha_vantage.model.AppUser;
 import alpha_vantage.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,18 +13,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/users")
 public class UserController {
 
-    private UserRepository applicationUserRepository;
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    @Autowired
+    UserRepository userRepository;
 
-    public UserController(UserRepository applicationUserRepository,
-                          BCryptPasswordEncoder bCryptPasswordEncoder) {
-        this.applicationUserRepository = applicationUserRepository;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-    }
+    @Autowired
+    BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    @PostMapping("/sign-up")
-    public void signUp(@RequestBody AppUser user) {
+    @PostMapping("/registration")
+    public void register(@RequestBody AppUser user) {
+        user.setActive(1);
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-        applicationUserRepository.save(user);
+        userRepository.save(user);
     }
 }

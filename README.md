@@ -1,14 +1,14 @@
-# Alpha Vantage Crypto Currency Sandbox
+# Alpha Vantage Cryptocurrency Sandbox
 
 Uses Alpha Vantage's 3rd party API connection to collect, analyze, and persist data about cryptocurrencies. 
 
 ## Tech Stack
  - Java
- - Spring
- - MyBatis
+ - Spring Boot
+ - Spring Security + JWT User Authentication
+ - MyBatis & Hibernate
  - MySQL
- - AWS EC2
- - AWS RDS
+ - AWS EC2 & RDS
 
 ## Functionality
  - **searchDigital30()** calls the Alpha Vantage API's Digital Currency Daily function, and returns an ArrayList of
@@ -18,6 +18,7 @@ been added to the database yet, and if not, persists them.
 params can define which symbol to look for, and how many days to compare against (e.g. find the highest price of 
 Ethereum over the past 90 days)
  - Basic CRUD functionality
+ - User registers with email and password at users/registration to get a 7 day JWT. 
 
 ## More Info
 For more information on the Alpha Vantage API, check out https://www.alphavantage.co/documentation/

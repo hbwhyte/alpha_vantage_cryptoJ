@@ -4,7 +4,6 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.data.annotation.Transient;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
 public class AppUser {
@@ -20,7 +19,8 @@ public class AppUser {
     @NotEmpty(message = "Please provide your password")
     @Transient
     private String password;
-
+    @Column(name = "active")
+    private int active;
 
     public long getId() {
         return id;
@@ -40,5 +40,13 @@ public class AppUser {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public int getActive() {
+        return active;
+    }
+
+    public void setActive(int active) {
+        this.active = active;
     }
 }

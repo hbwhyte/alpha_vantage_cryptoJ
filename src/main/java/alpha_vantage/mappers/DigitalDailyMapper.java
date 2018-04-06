@@ -6,22 +6,22 @@ import org.apache.ibatis.annotations.*;
 @Mapper
 public interface DigitalDailyMapper {
 
-    String GET_BY_DATE = ("SELECT * FROM `mybatis-test`.`digital_currency_daily` WHERE date = #{date} AND isActive=1");
+    String GET_BY_DATE = ("SELECT * FROM `digital_currency_daily` WHERE date = #{date} AND isActive=1");
 
-    String GET_BY_ID = ("SELECT * FROM `mybatis-test`.`digital_currency_daily` WHERE id = #{id}");
+    String GET_BY_ID = ("SELECT * FROM `digital_currency_daily` WHERE id = #{id}");
 
-    String INSERT_DAY = ("INSERT INTO `mybatis-test`.`digital_currency_daily` " +
+    String INSERT_DAY = ("INSERT INTO `digital_currency_daily` " +
             "(`date`, `symbol`, `open`, `high`, `low`, `close`, `volume`,`marketcap`) " +
             "VALUES (#{date}, #{symbol}, #{open}, #{high}, #{low}, #{close}, #{volume}, #{marketCap})");
 
-    String DELETE_ENTRY = ("UPDATE `mybatis-test`.`digital_currency_daily` SET `isActive`=0 WHERE `id`= #{id}");
+    String DELETE_ENTRY = ("UPDATE `digital_currency_daily` SET `isActive`=0 WHERE `id`= #{id}");
 
-    String UPDATE_ENTRY = ("UPDATE `mybatis-test`.`digital_currency_daily` SET `date`=#{date}, `symbol`=#{symbol}, " +
+    String UPDATE_ENTRY = ("UPDATE `digital_currency_daily` SET `date`=#{date}, `symbol`=#{symbol}, " +
             "`open`=#{open}, `high`=#{high}, `low`=#{low}, `close`=#{close}, `volume`=#{volume},`marketcap`=#{marketCap}, " +
             "`isActive`=#{isActive} " +
             "WHERE `id`= #{id}");
 
-    String DOUBLE_CHECK = ("SELECT * FROM `mybatis-test`.`digital_currency_daily` " +
+    String DOUBLE_CHECK = ("SELECT * FROM `digital_currency_daily` " +
             "WHERE `date`=#{arg0} AND `symbol`=#{arg1}");
 
     @Select(GET_BY_DATE)
