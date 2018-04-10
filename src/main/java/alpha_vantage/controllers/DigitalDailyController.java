@@ -95,9 +95,9 @@ public class DigitalDailyController {
         digitalDailyService.clearCache();
     }
 
-//    @RequestMapping(method = RequestMethod.GET, value = "/persist30")
-//    public void persist30() {
-//        digitalDailyService.persistAll();
-//    }
+    @RequestMapping(method = RequestMethod.GET, value = "/persist30")
+    public void persist30() {
+        digitalDailyService.persistAll();
+    }
 
 }

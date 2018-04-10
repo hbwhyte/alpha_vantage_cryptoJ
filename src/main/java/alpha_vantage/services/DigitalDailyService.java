@@ -5,6 +5,7 @@ import alpha_vantage.mappers.DigitalDailyMapper;
 import alpha_vantage.model.internal.FindMax;
 import alpha_vantage.model.external.DigitalDailyResponse;
 import alpha_vantage.model.internal.DigitalCurrencyDaily;
+import org.apache.ibatis.jdbc.Null;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +75,8 @@ public class DigitalDailyService {
      */
     @Cacheable(value = "digitaldaily")
     public ArrayList<DigitalCurrencyDaily> searchDigital30(DigitalCurrency symbol) {
+        long start = System.currentTimeMillis();
+        System.out.println("Start searching " + symbol);
         DigitalDailyResponse response = null; //searchDigitalDaily(symbol);
         try {
             response = digitalDailyTask.searchAsync(symbol).get();
@@ -101,6 +104,7 @@ public class DigitalDailyService {
         }
         // If any of the objects in the last30 ArrayList are not in the database, persist() adds them
         //persist(last30);
+        System.out.println("Done searching for " + symbol + " in " + (System.currentTimeMillis() - start));
         digitalDailyTask.persist(last30);
         return last30;
     }
@@ -117,7 +121,7 @@ public class DigitalDailyService {
     public void persist(ArrayList<DigitalCurrencyDaily> last30) {
         int rowsUpdated = 0;
         long start = System.currentTimeMillis();
-        System.out.println("Starting persisting");
+        System.out.println("Start persisting");
         for (DigitalCurrencyDaily daily : last30) {
             if (digitalDailyMapper.doubleCheck(daily.getDate(), daily.getSymbol()) == null) {
                 digitalDailyMapper.insertDay(daily);
@@ -217,9 +221,8 @@ public class DigitalDailyService {
         logger.info("Clearing all caches");
     }
 
-//    public void persistAll() {
-//        EnumSet.allOf(DigitalCurrency.class)
-//                .forEach(coin -> searchDigital30(coin));
-//    }
+    public void persistAll() {
+        EnumSet.allOf(DigitalCurrency.class).forEach(coin -> digitalDailyTask.searchAsync30(coin));
+    }
 }
 
