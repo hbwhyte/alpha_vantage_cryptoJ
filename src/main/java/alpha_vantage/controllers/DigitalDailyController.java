@@ -90,6 +90,11 @@ public class DigitalDailyController {
         return digitalDailyService.deleteByID(id);
     }
 
+    @RequestMapping(value = "/cache", method = RequestMethod.DELETE)
+    public void clearCache() {
+        digitalDailyService.clearCache();
+    }
+
 //    @RequestMapping(method = RequestMethod.GET, value = "/persist30")
 //    public void persist30() {
 //        digitalDailyService.persistAll();

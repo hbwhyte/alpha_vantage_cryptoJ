@@ -5,8 +5,13 @@ import alpha_vantage.mappers.DigitalDailyMapper;
 import alpha_vantage.model.internal.FindMax;
 import alpha_vantage.model.external.DigitalDailyResponse;
 import alpha_vantage.model.internal.DigitalCurrencyDaily;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
@@ -30,12 +35,14 @@ public class DigitalDailyService {
     @Autowired
     private DigitalDailyTask digitalDailyTask;
 
-
     @Autowired
     ThreadPoolTaskExecutor threadPoolTaskExecutor;
 
     @Value("${alphavantage.api-key}")
     private String apiKey;
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
 
     /**
      * Calls the Alpha Vantage API's Digital Currency Daily function, and searches
@@ -45,6 +52,8 @@ public class DigitalDailyService {
      *               Alpha Vantage. Case sensitive (all caps).
      * @return DigitalDailyResponse full JSON
      */
+
+    @Cacheable(value = "fullresponse")
     public DigitalDailyResponse searchDigitalDaily(DigitalCurrency symbol) {
         String fQuery = "https://www.alphavantage.co/query?function=DIGITAL_CURRENCY_DAILY&symbol=" + symbol + "&market=USD&apikey=" + apiKey;
         DigitalDailyResponse response = restTemplate.getForObject(fQuery, DigitalDailyResponse.class);
@@ -63,7 +72,8 @@ public class DigitalDailyService {
      *               Alpha Vantage. Case sensitive (all caps).
      * @return ArrayList of DigitalCurrencyDaily objects
      */
-    public ArrayList<DigitalCurrencyDaily> searchDigital30(DigitalCurrency symbol){
+    @Cacheable(value = "digitaldaily")
+    public ArrayList<DigitalCurrencyDaily> searchDigital30(DigitalCurrency symbol) {
         DigitalDailyResponse response = null; //searchDigitalDaily(symbol);
         try {
             response = digitalDailyTask.searchAsync(symbol).get();
@@ -159,6 +169,7 @@ public class DigitalDailyService {
      * @param entry DigitalCurrencyDaily object to be added to the database
      * @return DigitalCurrencyDaily object of the new entry with id
      */
+    @CachePut(value = "digitaldaily", key = "#entry.id")
     public DigitalCurrencyDaily addNew(DigitalCurrencyDaily entry) {
         digitalDailyMapper.insertDay(entry);
         return digitalDailyMapper.getByID(entry.getId());
@@ -171,6 +182,7 @@ public class DigitalDailyService {
      *              the database.
      * @return DigitalCurrencyDaily object of the updated entry with id
      */
+    @CachePut(value = "digitaldaily", key = "#entry.id")
     public DigitalCurrencyDaily updateById(DigitalCurrencyDaily entry) {
         digitalDailyMapper.updateEntry(entry);
         return digitalDailyMapper.getByID(entry.getId());
@@ -183,6 +195,7 @@ public class DigitalDailyService {
      * @param id of entry to be set to inactive
      * @return record of inactive entry
      */
+    @CacheEvict(value = "digitaldaily", key = "#id")
     public DigitalCurrencyDaily deleteByID(int id) {
         digitalDailyMapper.deleteEntry(id);
         return digitalDailyMapper.getByID(id);
@@ -194,8 +207,14 @@ public class DigitalDailyService {
      * @param id integer of object to be returned
      * @return DigitalCurrencyDaily object of the entry by id
      */
+    @Cacheable(value = "digitaldaily", key = "#id")
     public DigitalCurrencyDaily getByID(int id) {
         return digitalDailyMapper.getByID(id);
+    }
+
+    @CacheEvict(value = {"fullresponse", "digitaldaily"}, allEntries = true)
+    public void clearCache() {
+        logger.info("Clearing all caches");
     }
 
 //    public void persistAll() {
