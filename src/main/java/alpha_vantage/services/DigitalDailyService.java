@@ -7,11 +7,17 @@ import alpha_vantage.model.external.DigitalDailyResponse;
 import alpha_vantage.model.internal.DigitalCurrencyDaily;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.orm.jpa.vendor.Database;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 @Service
 public class DigitalDailyService {
@@ -20,6 +26,13 @@ public class DigitalDailyService {
 
     @Autowired
     DigitalDailyMapper digitalDailyMapper;
+
+    @Autowired
+    private DigitalDailyTask digitalDailyTask;
+
+
+    @Autowired
+    ThreadPoolTaskExecutor threadPoolTaskExecutor;
 
     @Value("${alphavantage.api-key}")
     private String apiKey;
@@ -50,10 +63,16 @@ public class DigitalDailyService {
      *               Alpha Vantage. Case sensitive (all caps).
      * @return ArrayList of DigitalCurrencyDaily objects
      */
-    public ArrayList<DigitalCurrencyDaily> searchDigital30(DigitalCurrency symbol) {
-        DigitalDailyResponse response = searchDigitalDaily(symbol);
+    public ArrayList<DigitalCurrencyDaily> searchDigital30(DigitalCurrency symbol){
+        DigitalDailyResponse response = null; //searchDigitalDaily(symbol);
+        try {
+            response = digitalDailyTask.searchAsync(symbol).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
         ArrayList<DigitalCurrencyDaily> last30 = new ArrayList<>();
-
         // Loops through the 30 previous days
         // Creates a new DigitalCurrencyDaily object for each day
         for (LocalDate date = LocalDate.now().minusDays(31); date.isBefore(LocalDate.now().minusDays(1));
@@ -70,9 +89,9 @@ public class DigitalDailyService {
             obj.setMarketCap(response.getTimeSeries().getDays().get(obj.getDate()).getMarketCap());
             last30.add(obj);
         }
-        //TODO Make persist() a separate thread
         // If any of the objects in the last30 ArrayList are not in the database, persist() adds them
-        persist(last30);
+        //persist(last30);
+        digitalDailyTask.persist(last30);
         return last30;
     }
 
@@ -87,13 +106,15 @@ public class DigitalDailyService {
      */
     public void persist(ArrayList<DigitalCurrencyDaily> last30) {
         int rowsUpdated = 0;
-
+        long start = System.currentTimeMillis();
+        System.out.println("Starting persisting");
         for (DigitalCurrencyDaily daily : last30) {
             if (digitalDailyMapper.doubleCheck(daily.getDate(), daily.getSymbol()) == null) {
                 digitalDailyMapper.insertDay(daily);
                 rowsUpdated++;
             }
         }
+        System.out.println("Done persisting in " + (System.currentTimeMillis() - start));
         System.out.println(rowsUpdated + " rows updated.");
     }
 
@@ -176,5 +197,10 @@ public class DigitalDailyService {
     public DigitalCurrencyDaily getByID(int id) {
         return digitalDailyMapper.getByID(id);
     }
+
+//    public void persistAll() {
+//        EnumSet.allOf(DigitalCurrency.class)
+//                .forEach(coin -> searchDigital30(coin));
+//    }
 }
 

@@ -25,7 +25,10 @@ public class DigitalDailyController {
      */
     @RequestMapping("/search")
     public ArrayList<DigitalCurrencyDaily> searchDigital30(@RequestParam(value = "symbol", defaultValue = "ETH") DigitalCurrency symbol) {
-        return digitalDailyService.searchDigital30(symbol);
+        long start = System.currentTimeMillis();
+        ArrayList<DigitalCurrencyDaily> timed = digitalDailyService.searchDigital30(symbol);
+        System.out.println("Completed search in " + (System.currentTimeMillis() - start));
+        return timed;
     }
 
     /**
@@ -86,5 +89,10 @@ public class DigitalDailyController {
     public DigitalCurrencyDaily deleteById(@RequestParam(value = "id") int id) {
         return digitalDailyService.deleteByID(id);
     }
+
+//    @RequestMapping(method = RequestMethod.GET, value = "/persist30")
+//    public void persist30() {
+//        digitalDailyService.persistAll();
+//    }
 
 }

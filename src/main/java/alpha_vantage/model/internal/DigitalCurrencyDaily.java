@@ -1,5 +1,7 @@
 package alpha_vantage.model.internal;
 
+import java.util.concurrent.Callable;
+
 public class DigitalCurrencyDaily {
     int id;
     String date;
