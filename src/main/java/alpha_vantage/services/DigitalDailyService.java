@@ -2,10 +2,10 @@ package alpha_vantage.services;
 
 import alpha_vantage.enums.DigitalCurrency;
 import alpha_vantage.mappers.DigitalDailyMapper;
+import alpha_vantage.model.external.DigitalDailyMeta;
 import alpha_vantage.model.internal.FindMax;
 import alpha_vantage.model.external.DigitalDailyResponse;
 import alpha_vantage.model.internal.DigitalCurrencyDaily;
-import org.apache.ibatis.jdbc.Null;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,17 +13,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.orm.jpa.vendor.Database;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 @Service
 public class DigitalDailyService {
@@ -34,10 +30,7 @@ public class DigitalDailyService {
     DigitalDailyMapper digitalDailyMapper;
 
     @Autowired
-    private DigitalDailyTask digitalDailyTask;
-
-    @Autowired
-    ThreadPoolTaskExecutor threadPoolTaskExecutor;
+    private DigitalDailyAsync digitalDailyAsync;
 
     @Value("${alphavantage.api-key}")
     private String apiKey;
@@ -79,7 +72,7 @@ public class DigitalDailyService {
         System.out.println("Start searching " + symbol);
         DigitalDailyResponse response = null; //searchDigitalDaily(symbol);
         try {
-            response = digitalDailyTask.searchAsync(symbol).get();
+            response = digitalDailyAsync.searchAsync(symbol).get();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
@@ -105,7 +98,7 @@ public class DigitalDailyService {
         // If any of the objects in the last30 ArrayList are not in the database, persist() adds them
         //persist(last30);
         System.out.println("Done searching for " + symbol + " in " + (System.currentTimeMillis() - start));
-        digitalDailyTask.persist(last30);
+        digitalDailyAsync.persist(last30);
         return last30;
     }
 
@@ -221,8 +214,27 @@ public class DigitalDailyService {
         logger.info("Clearing all caches");
     }
 
+    /**
+     * Searches every enum for the past 30 days of data, asynchronously, and
+     * persists non-duplicate data to the database.
+     */
     public void persistAll() {
-        EnumSet.allOf(DigitalCurrency.class).forEach(coin -> digitalDailyTask.searchAsync30(coin));
+        EnumSet.allOf(DigitalCurrency.class).forEach(coin -> digitalDailyAsync.searchAsyncAll(coin));
     }
+
+
+    /**
+     * Small test method to see if any of the Enums are null coming from the
+     * Alpha Vantage API. It writes the list of active Enums if needed.
+     */
+    public void nullChecker() {
+        EnumSet.allOf(DigitalCurrency.class).forEach(coin -> {
+            DigitalDailyMeta response = searchDigitalDaily(coin).getMetaData();
+            if (response != null) {
+                System.out.println(coin + "(\""+coin.getFullName()+"\"),");
+            }
+        });
+    }
+
 }
 

@@ -1,13 +1,18 @@
 package alpha_vantage.enums;
 
+import alpha_vantage.services.DigitalDailyAsync;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class EnumParser {
+
+    @Autowired
+    DigitalDailyAsync digitalDailyAsync;
+
     public static void main(String[] args) {
         String path = "/Users/hbwhyte/dev_stuff/coding_nomads/bali/projects/alphavantage/src/main/java/alpha_vantage/enums/";
         String physicalCurrency = "physical_currency_list.csv";
@@ -35,4 +40,7 @@ public class EnumParser {
 
         }
     }
+
+
+
 }

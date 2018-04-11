@@ -4,6 +4,7 @@ import alpha_vantage.enums.DigitalCurrency;
 import alpha_vantage.model.internal.DigitalCurrencyDaily;
 import alpha_vantage.model.internal.FindMax;
 import alpha_vantage.services.DigitalDailyService;
+import alpha_vantage.services.DigitalDailyAsync;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +16,9 @@ public class DigitalDailyController {
 
     @Autowired
     DigitalDailyService digitalDailyService;
+
+    @Autowired
+    DigitalDailyAsync digitalDailyAsync;
 
     /**
      * GET request that calls searchDigital30(). Default search is for ETH (Ethereum).
@@ -95,9 +99,17 @@ public class DigitalDailyController {
         digitalDailyService.clearCache();
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/persist30")
-    public void persist30() {
-        digitalDailyService.persistAll();
+//    @RequestMapping(method = RequestMethod.GET, value = "/persist30")
+//    public void persist30() {
+//        digitalDailyService.persistAll();
+//    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/persistall")
+    public void persistAll() {digitalDailyService.persistAll(); }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/null")
+    public void enumChecker() {
+        digitalDailyService.nullChecker();
     }
 
 }
