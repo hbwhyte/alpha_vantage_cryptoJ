@@ -215,8 +215,8 @@ public class DigitalDailyService {
     }
 
     /**
-     * Searches every enum for the past 30 days of data, asynchronously, and
-     * persists non-duplicate data to the database.
+     * Searches every enum asynchronously and persists any non-duplicate
+     * data to the database.
      */
     public void persistAll() {
         EnumSet.allOf(DigitalCurrency.class).forEach(coin -> digitalDailyAsync.searchAsyncAll(coin));
