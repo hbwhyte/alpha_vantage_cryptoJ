@@ -29,8 +29,11 @@ public class DigitalDailyService {
     @Autowired
     DigitalDailyMapper digitalDailyMapper;
 
+//    @Autowired
+//    private DigitalDailyAsync digitalDailyAsync;
+
     @Autowired
-    private DigitalDailyAsync digitalDailyAsync;
+    AsyncService async;
 
     @Value("${alphavantage.api-key}")
     private String apiKey;
@@ -70,14 +73,8 @@ public class DigitalDailyService {
     public ArrayList<DigitalCurrencyDaily> searchDigital30(DigitalCurrency symbol) {
         long start = System.currentTimeMillis();
         System.out.println("Start searching " + symbol);
-        DigitalDailyResponse response = null; //searchDigitalDaily(symbol);
-        try {
-            response = digitalDailyAsync.searchAsync(symbol).get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
+        DigitalDailyResponse response;  //searchDigitalDaily(symbol);
+        response = async.searchAsync(symbol);
         ArrayList<DigitalCurrencyDaily> last30 = new ArrayList<>();
         // Loops through the 30 previous days
         // Creates a new DigitalCurrencyDaily object for each day
@@ -98,7 +95,7 @@ public class DigitalDailyService {
         // If any of the objects in the last30 ArrayList are not in the database, persist() adds them
         //persist(last30);
         System.out.println("Done searching for " + symbol + " in " + (System.currentTimeMillis() - start));
-        digitalDailyAsync.persist(last30);
+        async.persist(last30);
         return last30;
     }
 
@@ -219,7 +216,7 @@ public class DigitalDailyService {
      * data to the database.
      */
     public void persistAll() {
-        EnumSet.allOf(DigitalCurrency.class).forEach(coin -> digitalDailyAsync.searchAsyncAll(coin));
+        EnumSet.allOf(DigitalCurrency.class).forEach(coin -> async.searchAsyncAll(coin));
     }
 
 
