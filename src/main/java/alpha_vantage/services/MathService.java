@@ -1,13 +1,22 @@
 package alpha_vantage.services;
 
+import alpha_vantage.mappers.DigitalDailyMapper;
 import org.apache.commons.math3.stat.correlation.Covariance;
 import org.apache.commons.math3.stat.correlation.KendallsCorrelation;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+
+// http://commons.apache.org/proper/commons-math/userguide/stat.html#a1.7_Covariance_and_correlation
+// https://stats.stackexchange.com/questions/29096/correlation-between-two-time-series
 @Service
 public class MathService {
+
+    @Autowired
+    DigitalDailyMapper digitalDailyMapper;
+
 
     static double[] x = {1.0, 2.0, 3.0, 4.0};
     static double[] y = {2.0, 3.0, 6.0, 9.0};
@@ -30,6 +39,10 @@ public class MathService {
         double kendall = new KendallsCorrelation().correlation(x, y);
         System.out.println("Kendall's correlation = " + kendall);
 
+
+        MathService obj = new MathService();
+
+        System.out.println(obj.digitalDailyMapper.getByDate("2018-03-01"));
 
     }
 }
