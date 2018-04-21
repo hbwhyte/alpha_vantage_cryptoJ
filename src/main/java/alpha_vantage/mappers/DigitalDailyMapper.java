@@ -1,12 +1,17 @@
 package alpha_vantage.mappers;
 
+import alpha_vantage.enums.DigitalCurrency;
 import alpha_vantage.model.internal.DigitalCurrencyDaily;
 import org.apache.ibatis.annotations.*;
+
+import java.util.List;
 
 @Mapper
 public interface DigitalDailyMapper {
 
     String GET_BY_DATE = ("SELECT * FROM `digital_currency_daily` WHERE date = #{date} AND isActive=1");
+
+    String GET_ALL_BY_SYMBOL = ("SELECT * FROM `digital_currency_daily` WHERE symbol = #{symbol} AND isActive=1");
 
     String GET_BY_ID = ("SELECT * FROM `digital_currency_daily` WHERE id = #{id}");
 
@@ -24,8 +29,19 @@ public interface DigitalDailyMapper {
     String DOUBLE_CHECK = ("SELECT * FROM `digital_currency_daily` " +
             "WHERE `date`=#{arg0} AND `symbol`=#{arg1}");
 
+    @Results(id = "symbolResult", value = {
+            @Result(property = "date", column = "date"),
+            @Result(property = "symbol", column = "symbol"),
+    })
     @Select(GET_BY_DATE)
     public DigitalCurrencyDaily getByDate(String date);
+
+    @Results(id = "symbolResult", value = {
+            @Result(property = "date", column = "date"),
+            @Result(property = "symbol", column = "symbol"),
+    })
+    @Select(GET_ALL_BY_SYMBOL)
+    public List<DigitalCurrencyDaily> getAllBySymbol(DigitalCurrency symbol);
 
     @Select(GET_BY_ID)
     public DigitalCurrencyDaily getByID(int id);

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/digitaldaily")
@@ -15,9 +16,6 @@ public class DigitalDailyController {
 
     @Autowired
     DigitalDailyService digitalDailyService;
-
-//    @Autowired
-//    DigitalDailyAsync digitalDailyAsync;
 
     /**
      * GET request that calls searchDigital30(). Default search is for ETH (Ethereum).
@@ -29,6 +27,11 @@ public class DigitalDailyController {
     @RequestMapping("/search")
     public ArrayList<DigitalCurrencyDaily> searchDigital30(@RequestParam(value = "symbol", defaultValue = "ETH") DigitalCurrency symbol) {
         return digitalDailyService.searchDigital30(symbol);
+    }
+
+    @RequestMapping("/search2")
+    public List<DigitalCurrencyDaily> searchDigital30DB(@RequestParam(value = "symbol", defaultValue = "ETH") DigitalCurrency symbol) {
+        return digitalDailyService.searchDigital30DB(symbol);
     }
 
     /**
@@ -95,10 +98,6 @@ public class DigitalDailyController {
         digitalDailyService.clearCache();
     }
 
-//    @RequestMapping(method = RequestMethod.GET, value = "/persist30")
-//    public void persist30() {
-//        digitalDailyService.persistAll();
-//    }
 
     @RequestMapping(method = RequestMethod.GET, value = "/persistall")
     public void persistAll() {digitalDailyService.persistAll(); }
