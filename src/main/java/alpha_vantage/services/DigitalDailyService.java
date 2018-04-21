@@ -19,7 +19,6 @@ import org.springframework.web.client.RestTemplate;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.concurrent.ExecutionException;
 
 @Service
 public class DigitalDailyService {
@@ -33,7 +32,7 @@ public class DigitalDailyService {
 //    private DigitalDailyAsync digitalDailyAsync;
 
     @Autowired
-    AsyncService async;
+    DataGeneration dataGeneration;
 
     @Value("${alphavantage.api-key}")
     private String apiKey;
@@ -74,7 +73,7 @@ public class DigitalDailyService {
         long start = System.currentTimeMillis();
         System.out.println("Start searching " + symbol);
         DigitalDailyResponse response;  //searchDigitalDaily(symbol);
-        response = async.searchAsync(symbol);
+        response = dataGeneration.searchAsync(symbol);
         ArrayList<DigitalCurrencyDaily> last30 = new ArrayList<>();
         // Loops through the 30 previous days
         // Creates a new DigitalCurrencyDaily object for each day
@@ -95,7 +94,7 @@ public class DigitalDailyService {
         // If any of the objects in the last30 ArrayList are not in the database, persist() adds them
         //persist(last30);
         System.out.println("Done searching for " + symbol + " in " + (System.currentTimeMillis() - start));
-        async.persist(last30);
+        dataGeneration.persist(last30);
         return last30;
     }
 
@@ -216,7 +215,7 @@ public class DigitalDailyService {
      * data to the database.
      */
     public void persistAll() {
-        EnumSet.allOf(DigitalCurrency.class).forEach(coin -> async.searchAsyncAll(coin));
+        EnumSet.allOf(DigitalCurrency.class).forEach(coin -> dataGeneration.parseData(coin));
     }
 
 
