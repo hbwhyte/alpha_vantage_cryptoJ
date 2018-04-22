@@ -30,8 +30,8 @@ public class DigitalDailyController {
     }
 
     @RequestMapping("/search2")
-    public List<DigitalCurrencyDaily> searchDigital30DB(@RequestParam(value = "symbol", defaultValue = "ETH") DigitalCurrency symbol) {
-        return digitalDailyService.searchDigital30DB(symbol);
+    public List<DigitalCurrencyDaily> searchDigital(@RequestParam(value = "symbol", defaultValue = "ETH") DigitalCurrency symbol) {
+        return digitalDailyService.searchDigital(symbol);
     }
 
     /**

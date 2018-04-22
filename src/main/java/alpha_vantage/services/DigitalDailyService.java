@@ -19,6 +19,7 @@ import org.springframework.web.client.RestTemplate;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 
 @Service
 public class DigitalDailyService {
@@ -27,9 +28,6 @@ public class DigitalDailyService {
 
     @Autowired
     DigitalDailyMapper digitalDailyMapper;
-
-//    @Autowired
-//    private DigitalDailyAsync digitalDailyAsync;
 
     @Autowired
     DataGeneration dataGeneration;
@@ -49,7 +47,7 @@ public class DigitalDailyService {
      * @return DigitalDailyResponse full JSON
      */
 
-    @Cacheable(value = "fullresponse")
+    @Cacheable(value = "digitaldaily")
     public DigitalDailyResponse searchDigitalDaily(DigitalCurrency symbol) {
         String fQuery = "https://www.alphavantage.co/query?function=DIGITAL_CURRENCY_DAILY&symbol=" + symbol + "&market=USD&apikey=" + apiKey;
         DigitalDailyResponse response = restTemplate.getForObject(fQuery, DigitalDailyResponse.class);
@@ -96,6 +94,19 @@ public class DigitalDailyService {
         System.out.println("Done searching for " + symbol + " in " + (System.currentTimeMillis() - start));
         dataGeneration.persist(last30);
         return last30;
+    }
+
+    /**
+     * Returns a List of all results for a given symbol from the database.
+     *
+     * @param symbol enum of DigitalCurrency, of digital currencies supported by
+     *               Alpha Vantage. Case sensitive (all caps).
+     * @return List of DigitalCurrencyDaily objects
+     */
+    @Cacheable("digitaldaily")
+    public List<DigitalCurrencyDaily> searchDigital(DigitalCurrency symbol) {
+        List<DigitalCurrencyDaily> results = digitalDailyMapper.getAllBySymbol(symbol);
+        return results;
     }
 
     /**
@@ -205,7 +216,7 @@ public class DigitalDailyService {
         return digitalDailyMapper.getByID(id);
     }
 
-    @CacheEvict(value = {"fullresponse", "digitaldaily"}, allEntries = true)
+    @CacheEvict(value = {"digitaldaily"}, allEntries = true)
     public void clearCache() {
         logger.info("Clearing all caches");
     }

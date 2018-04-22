@@ -29,7 +29,7 @@ public interface DigitalDailyMapper {
     String DOUBLE_CHECK = ("SELECT * FROM `digital_currency_daily` " +
             "WHERE `date`=#{arg0} AND `symbol`=#{arg1}");
 
-    @Results(id = "symbolResult", value = {
+    @Results(id = "dateResult", value = {
             @Result(property = "date", column = "date"),
             @Result(property = "symbol", column = "symbol"),
     })
