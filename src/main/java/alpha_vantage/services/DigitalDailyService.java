@@ -73,9 +73,11 @@ public class DigitalDailyService {
         ArrayList<DigitalCurrencyDaily> last30 = new ArrayList<>();
         // Loops through List to get the last 30 days of data
         for (LocalDate date = LocalDate.now().minusDays(1); date.isAfter(LocalDate.now().minusDays(32));
-        date = date.minusDays(1)) {
+             date = date.minusDays(1)) {
             // Double check to make sure only 30 results are returned
-            if (last30.size() == 30) { break; }
+            if (last30.size() == 30) {
+                break;
+            }
             // Loop sorts entries by date since the data in the database is not ordered
             for (int i = 0; i < responses.size(); i++) {
                 if (responses.get(i).getDate().equals(date.format(DateTimeFormatter.ISO_LOCAL_DATE))) {
@@ -110,29 +112,27 @@ public class DigitalDailyService {
      * @return FindMax object
      */
     public FindMax findMax(DigitalCurrency symbol, int numDays) {
-        // Calls Alpha Vantage API to return all historical information for that symbol
-        DigitalDailyResponse response = dataGeneration.searchAsync(symbol);
+        // Returns all historical data for that symbol from our database
+        List<DigitalCurrencyDaily> responses = digitalDailyMapper.getAllBySymbol(symbol);
 
-        FindMax obj = new FindMax();
+        FindMax max = new FindMax();
         double maxVal = -1;
         String maxDate = null;
-        obj.setSymbol(symbol);
+        max.setSymbol(symbol);
 
-        // Loops through dates, then compares their highest daily prices
-        for (LocalDate date = LocalDate.now().minusDays(numDays + 1); date.isBefore(LocalDate.now().minusDays(1));
-             date = date.plusDays(1)) {
-            String mydate = date.toString();
-            obj.setDate(mydate);
-            obj.setHighUSD(response.getTimeSeries().getDays().get(obj.getDate()).getHighUSD());
-            // if it finds a new highest price, it changes the value of maxValue and maxDate
-            if (obj.getHighUSD() > maxVal) {
-                maxVal = obj.getHighUSD();
-                maxDate = obj.getDate();
+        // Loops through days, then compares their highest daily prices
+        for (DigitalCurrencyDaily day : responses) {
+            // if it finds a new highest price within the given date range, it changes the value of maxValue and maxDate
+            if (LocalDate.parse(day.getDate()).isAfter(LocalDate.now().minusDays(numDays + 1))
+                    && day.getHigh() > maxVal) {
+                maxVal = day.getHigh();
+                maxDate = day.getDate();
             }
         }
-        obj.setHighUSD(maxVal);
-        obj.setDate(maxDate);
-        return obj;
+        // Sets object based on final maxVal and maxDate
+        max.setHighUSD(maxVal);
+        max.setDate(maxDate);
+        return max;
     }
 
     /**
@@ -206,7 +206,7 @@ public class DigitalDailyService {
         EnumSet.allOf(DigitalCurrency.class).forEach(coin -> {
             DigitalDailyMeta response = dataGeneration.searchAsync(coin).getMetaData();
             if (response != null) {
-                System.out.println(coin + "(\""+coin.getFullName()+"\"),");
+                System.out.println(coin + "(\"" + coin.getFullName() + "\"),");
             }
         });
     }
