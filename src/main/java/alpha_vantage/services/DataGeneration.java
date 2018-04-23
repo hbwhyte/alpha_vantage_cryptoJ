@@ -51,7 +51,7 @@ public class DataGeneration {
      * @throws NullPointerException is thrown if the symbol returns no information
      */
     @Async
-    public void parseData(DigitalCurrency symbol) throws NullPointerException {
+    public ArrayList<DigitalCurrencyDaily> parseData(DigitalCurrency symbol) throws NullPointerException {
         // Starts counter to track time taken to persist one result set
         long start = System.currentTimeMillis();
         logger.info("Start searching " + symbol);
@@ -97,6 +97,7 @@ public class DataGeneration {
         logger.info("Done searching for " + symbol + " in " + (System.currentTimeMillis() - start));
         // Persist mapped records to the database
         persist(allRecords);
+        return allRecords;
     }
 
     /**

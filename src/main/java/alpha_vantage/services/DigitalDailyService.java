@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -55,12 +56,8 @@ public class DigitalDailyService {
     }
 
     /**
-     * Calls the searchDigitalDaily() method, and parses the response to return
-     * an ArrayList of DigitalCurrencyDaily info for the previous 30 days data
-     * for the entered symbol.
-     * <p>
-     * Calls the persist() method to add the search objects to the database if
-     * they are not currently there
+     * Returns a sorted ArrayList of DigitalCurrencyDaily info from the database
+     * for the previous 30 days data of the entered symbol.
      *
      * @param symbol enum of DigitalCurrency, of digital currencies supported by
      *               Alpha Vantage. Case sensitive (all caps).
@@ -68,31 +65,26 @@ public class DigitalDailyService {
      */
     @Cacheable(value = "digitaldaily")
     public ArrayList<DigitalCurrencyDaily> searchDigital30(DigitalCurrency symbol) {
+        // For tracking speed of search
         long start = System.currentTimeMillis();
-        System.out.println("Start searching " + symbol);
-        DigitalDailyResponse response;  //searchDigitalDaily(symbol);
-        response = dataGeneration.searchAsync(symbol);
+        logger.info("Start searching " + symbol);
+        // Gets all instances of symbol from the database
+        List<DigitalCurrencyDaily> responses = digitalDailyMapper.getAllBySymbol(symbol);
         ArrayList<DigitalCurrencyDaily> last30 = new ArrayList<>();
-        // Loops through the 30 previous days
-        // Creates a new DigitalCurrencyDaily object for each day
-        for (LocalDate date = LocalDate.now().minusDays(31); date.isBefore(LocalDate.now().minusDays(1));
-             date = date.plusDays(1)) {
-            String mydate = date.toString();
-            DigitalCurrencyDaily obj = new DigitalCurrencyDaily();
-            obj.setDate(mydate);
-            obj.setSymbol((response.getMetaData().getDigitalCurrencyCode().name()));
-            obj.setOpen(response.getTimeSeries().getDays().get(obj.getDate()).getOpenUSD());
-            obj.setHigh(response.getTimeSeries().getDays().get(obj.getDate()).getHighUSD());
-            obj.setLow(response.getTimeSeries().getDays().get(obj.getDate()).getLowUSD());
-            obj.setClose(response.getTimeSeries().getDays().get(obj.getDate()).getCloseUSD());
-            obj.setVolume(response.getTimeSeries().getDays().get(obj.getDate()).getVolume());
-            obj.setMarketCap(response.getTimeSeries().getDays().get(obj.getDate()).getMarketCap());
-            last30.add(obj);
+        // Loops through List to get the last 30 days of data
+        for (LocalDate date = LocalDate.now().minusDays(1); date.isAfter(LocalDate.now().minusDays(32));
+        date = date.minusDays(1)) {
+            // Double check to make sure only 30 results are returned
+            if (last30.size() == 30) { break; }
+            // Loop sorts entries by date since the data in the database is not ordered
+            for (int i = 0; i < responses.size(); i++) {
+                if (responses.get(i).getDate().equals(date.format(DateTimeFormatter.ISO_LOCAL_DATE))) {
+                    last30.add(responses.get(i));
+                    break;
+                }
+            }
         }
-        // If any of the objects in the last30 ArrayList are not in the database, persist() adds them
-        //persist(last30);
-        System.out.println("Done searching for " + symbol + " in " + (System.currentTimeMillis() - start));
-        dataGeneration.persist(last30);
+        logger.info("Done searching for " + symbol + " in " + (System.currentTimeMillis() - start));
         return last30;
     }
 
@@ -105,31 +97,7 @@ public class DigitalDailyService {
      */
     @Cacheable("digitaldaily")
     public List<DigitalCurrencyDaily> searchDigital(DigitalCurrency symbol) {
-        List<DigitalCurrencyDaily> results = digitalDailyMapper.getAllBySymbol(symbol);
-        return results;
-    }
-
-    /**
-     * For each object of the ArrayList, checks to see if that item currently
-     * exists in the database, based on checking the date and symbol. If it
-     * is not currently there, it inserts it.
-     * <p>
-     * Prints out the number of rows updated.
-     *
-     * @param last30 ArrayList of DigitalCurrencyDaily objects
-     */
-    public void persist(ArrayList<DigitalCurrencyDaily> last30) {
-        int rowsUpdated = 0;
-        long start = System.currentTimeMillis();
-        System.out.println("Start persisting");
-        for (DigitalCurrencyDaily daily : last30) {
-            if (digitalDailyMapper.doubleCheck(daily.getDate(), daily.getSymbol()) == null) {
-                digitalDailyMapper.insertDay(daily);
-                rowsUpdated++;
-            }
-        }
-        System.out.println("Done persisting in " + (System.currentTimeMillis() - start));
-        System.out.println(rowsUpdated + " rows updated.");
+        return digitalDailyMapper.getAllBySymbol(symbol);
     }
 
     /**
@@ -143,7 +111,7 @@ public class DigitalDailyService {
      */
     public FindMax findMax(DigitalCurrency symbol, int numDays) {
         // Calls Alpha Vantage API to return all historical information for that symbol
-        DigitalDailyResponse response = searchDigitalDaily(symbol);
+        DigitalDailyResponse response = dataGeneration.searchAsync(symbol);
 
         FindMax obj = new FindMax();
         double maxVal = -1;
@@ -236,12 +204,11 @@ public class DigitalDailyService {
      */
     public void nullChecker() {
         EnumSet.allOf(DigitalCurrency.class).forEach(coin -> {
-            DigitalDailyMeta response = searchDigitalDaily(coin).getMetaData();
+            DigitalDailyMeta response = dataGeneration.searchAsync(coin).getMetaData();
             if (response != null) {
                 System.out.println(coin + "(\""+coin.getFullName()+"\"),");
             }
         });
     }
-
 }
 
