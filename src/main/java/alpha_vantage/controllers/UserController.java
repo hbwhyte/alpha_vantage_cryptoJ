@@ -14,11 +14,20 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    BCryptPasswordEncoder bCryptPasswordEncoder;
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    /**
+     * POST request that registers users to access the API, and
+     * makes them eligible for their JWT token.
+     *
+     * Passwords stored using bCrypt.
+     *
+     * @param user appUser object that includes an email and
+     *             password.
+     */
     @PostMapping("/registration")
     public void register(@RequestBody AppUser user) {
         user.setActive(1);

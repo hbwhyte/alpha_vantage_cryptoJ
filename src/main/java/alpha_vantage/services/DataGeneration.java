@@ -9,6 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -16,6 +19,7 @@ import org.springframework.web.client.RestTemplate;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.EnumSet;
 
 /**
  * DataGeneration class is responsible for making API calls and keeping
@@ -35,7 +39,14 @@ public class DataGeneration {
     @Value("${alphavantage.api-key}")
     String apiKey;
 
-
+    /**
+     * Calls the Alpha Vantage API's Digital Currency Daily function, and searches
+     * their database for all records for that symbol in USD.
+     *
+     * @param symbol enum of DigitalCurrency, of digital currencies supported by
+     *               Alpha Vantage. Case sensitive (all caps).
+     * @return DigitalDailyResponse full JSON
+     */
     @Async
     public DigitalDailyResponse searchAsync(DigitalCurrency symbol) {
         String fQuery = "https://www.alphavantage.co/query?function=DIGITAL_CURRENCY_DAILY&symbol=" + symbol + "&market=USD&apikey=" + apiKey;
@@ -47,7 +58,7 @@ public class DataGeneration {
      * dates as DigitalCurrencyDaily POJOs. Skips dates with no data.
      *
      * @param symbol enum of DigitalCurrency, of digital currencies supported by
-     *                Alpha Vantage. Case sensitive (all caps).
+     *               Alpha Vantage. Case sensitive (all caps).
      * @throws NullPointerException is thrown if the symbol returns no information
      */
     @Async
@@ -126,6 +137,14 @@ public class DataGeneration {
     }
 
     /**
+     * Searches every enum asynchronously and persists any non-duplicate
+     * data to the database.
+     */
+    public void persistAll() {
+        EnumSet.allOf(DigitalCurrency.class).forEach(coin -> parseData(coin));
+    }
+
+    /**
      * Pulls from the Alpha Vantage JSON metadata what the most recent data point
      * is for that cryptocurrency (when it was last refreshed)
      *
@@ -138,6 +157,55 @@ public class DataGeneration {
         sb.delete(10, 23);
         // Parses String to LocalDate
         return LocalDate.parse(sb.toString(), DateTimeFormatter.ISO_LOCAL_DATE);
+    }
+
+    /**
+     * Adds new individual entry to the database
+     *
+     * @param entry DigitalCurrencyDaily object to be added to the database
+     * @return DigitalCurrencyDaily object of the new entry with id
+     */
+    @CachePut(value = "digitaldaily", key = "#entry.id")
+    public DigitalCurrencyDaily addNew(DigitalCurrencyDaily entry) {
+        digitalDailyMapper.insertDay(entry);
+        return digitalDailyMapper.getByID(entry.getId());
+    }
+
+    /**
+     * Updates individual entry in the database
+     *
+     * @param entry DigitalCurrencyDaily object with the information to update
+     *              the database.
+     * @return DigitalCurrencyDaily object of the updated entry with id
+     */
+    @CachePut(value = "digitaldaily", key = "#entry.id")
+    public DigitalCurrencyDaily updateById(DigitalCurrencyDaily entry) {
+        digitalDailyMapper.updateEntry(entry);
+        return digitalDailyMapper.getByID(entry.getId());
+    }
+
+    /**
+     * Marks entry at that id as inactive (isActive = 0). Does not permanently
+     * remove item from database.
+     *
+     * @param id of entry to be set to inactive
+     * @return record of inactive entry
+     */
+    @CacheEvict(value = "digitaldaily", key = "#id")
+    public DigitalCurrencyDaily deleteByID(int id) {
+        digitalDailyMapper.deleteEntry(id);
+        return digitalDailyMapper.getByID(id);
+    }
+
+    /**
+     * Returns one record from the database by their id number
+     *
+     * @param id integer of object to be returned
+     * @return DigitalCurrencyDaily object of the entry by id
+     */
+    @Cacheable(value = "digitaldaily", key = "#id")
+    public DigitalCurrencyDaily getByID(int id) {
+        return digitalDailyMapper.getByID(id);
     }
 }
 
