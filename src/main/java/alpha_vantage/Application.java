@@ -16,8 +16,8 @@ import org.springframework.web.client.RestTemplate;
 @SpringBootApplication
 @EnableAsync
 @EnableCaching
-public class Application {
-//public class Application extends SpringBootServletInitializer {
+//public class Application {
+public class Application extends SpringBootServletInitializer {
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
@@ -28,10 +28,10 @@ public class Application {
     }
 
     // For connecting to AWS server
-//    @Override
-//    protected SpringApplicationBuilder configure (SpringApplicationBuilder application){
-//        return application.sources(Application.class);
-//    }
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+        return application.sources(Application.class);
+    }
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {

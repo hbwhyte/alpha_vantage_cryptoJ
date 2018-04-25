@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/")
 public class UserController {
 
     @Autowired
@@ -28,7 +28,7 @@ public class UserController {
      * @param user appUser object that includes an email and
      *             password.
      */
-    @PostMapping("/registration")
+    @PostMapping("registration")
     public void register(@RequestBody AppUser user) {
         user.setActive(1);
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));

@@ -32,9 +32,9 @@ public class DigitalDailyController {
      */
     @RequestMapping(value = "/search")
     public List<DigitalCurrencyDaily> searchDigital30(@RequestParam(value = "symbol", defaultValue = "ETH") DigitalCurrency symbol,
-                                                           @RequestParam(value = "all", defaultValue = "0") int all) {
-        // if all = 1 then return all results for that symbol
-        if (Objects.equals(all,1)) {
+                                                           @RequestParam(value = "type", defaultValue = "all") String all) {
+        // if all = "all" then return all results for that symbol
+        if (Objects.equals(all,"all")) {
             return digitalDailyService.searchDigital(symbol);
         } else {
             // else return only the last 30 days

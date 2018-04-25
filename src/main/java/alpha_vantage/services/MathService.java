@@ -1,12 +1,16 @@
 package alpha_vantage.services;
 
+import alpha_vantage.enums.DigitalCurrency;
 import alpha_vantage.mappers.DigitalDailyMapper;
+import alpha_vantage.model.internal.DigitalCurrencyDaily;
 import org.apache.commons.math3.stat.correlation.Covariance;
 import org.apache.commons.math3.stat.correlation.KendallsCorrelation;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 
 // http://commons.apache.org/proper/commons-math/userguide/stat.html#a1.7_Covariance_and_correlation
@@ -22,6 +26,19 @@ public class MathService {
     static double[] y = {2.0, 3.0, 6.0, 9.0};
 
     //TODO get from DB, turn coin daily values into named arrays
+    public double[] createArrays(DigitalCurrency symbol) {
+        List<DigitalCurrencyDaily> responses = digitalDailyMapper.getAllBySymbol(symbol);
+        double[] openArray = new double[responses.size()];
+        int i = 0;
+        for (DigitalCurrencyDaily day : responses) {
+            openArray[i] = day.getOpen();
+            i++;
+        }
+        return openArray;
+    }
+
+
+
 
     //TODO create loop that compares each enum to another. Nested for loop
 
